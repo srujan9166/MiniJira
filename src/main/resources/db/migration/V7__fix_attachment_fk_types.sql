@@ -1,0 +1,5 @@
+ALTER TABLE attachments
+ALTER COLUMN issue_id TYPE BIGINT;
+
+ALTER TABLE attachments
+ALTER COLUMN uploaded_by TYPE BIGINT;

@@ -1,0 +1,2 @@
+ALTER TABLE attachments
+ALTER COLUMN id TYPE BIGINT;
