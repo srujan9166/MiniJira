@@ -68,4 +68,9 @@ public class IssueController {
         return ResponseEntity.status(HttpStatus.OK).body(issueService.getIssuesByProject());
     }
 
+    @GetMapping("/status")
+    public ResponseEntity<?> groupingByStatus(){
+        return ResponseEntity.status(HttpStatus.OK).body(issueService.groupingByStatus());
+    }
+
 }

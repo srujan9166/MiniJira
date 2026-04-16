@@ -23,6 +23,8 @@ import com.example.minijira.model.User;
 import com.example.minijira.repository.UserRepository;
 import com.example.minijira.util.JwtUtil;
 
+import jakarta.transaction.Transactional;
+
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -81,6 +83,7 @@ public class AuthServiceImpl implements AuthService {
                                  );
     }
  @Override
+ @Transactional
 public TokenResponseDto login(LoginRequest request) {
 
     Authentication authentication = authenticationManager.authenticate(

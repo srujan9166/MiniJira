@@ -19,6 +19,7 @@ import com.example.minijira.dto.issueDTO.IssueRequestDTO;
 import com.example.minijira.dto.issueDTO.IssueResponseDTO;
 import com.example.minijira.dto.issueDTO.UpdateStatusDTO;
 import com.example.minijira.dto.notificationDTO.NotificationSendDTO;
+import com.example.minijira.enums.IssueStatus;
 import com.example.minijira.model.Issue;
 import com.example.minijira.model.Project;
 import com.example.minijira.model.User;
@@ -213,6 +214,31 @@ public class IssueService {
         return "Issue assignee updated successfully!" ;
 
     }
+    public Map<String, List<IssueResponseDTO>> groupingByStatus(){
+        List<Issue> issues = issueRepository.findAll();
+       return issues.stream()
+            .collect(Collectors.groupingBy(
+                n -> n.getIssueStatus().name(),
+                Collectors.mapping(issue -> new IssueResponseDTO(
+                    issue.getId(),
+                    issue.getTitle(),
+                    issue.getDescription(),
+                    issue.getIssueType().name(),
+                    issue.getIssuePriority().name(),
+                    issue.getIssueStatus().name(),
+                    issue.getAssignee().getUsername(),
+                    issue.getReporter().getUsername(),
+                    issue.getProject().getName(),
+                    issue.getStoryPoints(),
+                    issue.getDueDate().toString(),
+                    issue.getCreatedAt().toString()
+                ), Collectors.toList())
+            ));
+       
+
+
+        
+    }
 
     public Map<String,List<IssueResponseDTO>> getIssuesByProject(){
         List<Issue> issues = issueRepository.findAll();
@@ -240,14 +266,11 @@ public class IssueService {
                     issue.getCreatedAt().toString()
                 ), Collectors.toList())
             ));
-
-
-
-        
-
     }
 
-    
+
+
+
 
     
 
