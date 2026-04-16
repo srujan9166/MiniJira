@@ -2,6 +2,9 @@ package com.example.minijira.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.Authentication;
@@ -210,6 +213,41 @@ public class IssueService {
         return "Issue assignee updated successfully!" ;
 
     }
+
+    public Map<String,List<IssueResponseDTO>> getIssuesByProject(){
+        List<Issue> issues = issueRepository.findAll();
+        // issues.stream()
+        //     .collect(Collectors.groupingBy(
+        //         n -> n.getProject().getName()
+        //     )).entrySet()
+        //     .stream()
+
+      return  issues.stream()
+            .collect(Collectors.groupingBy(
+                n -> n.getProject().getName(),
+                Collectors.mapping(issue -> new IssueResponseDTO(
+                    issue.getId(),
+                    issue.getTitle(),
+                    issue.getDescription(),
+                    issue.getIssueType().name(),
+                    issue.getIssuePriority().name(),
+                    issue.getIssueStatus().name(),
+                    issue.getAssignee().getUsername(),
+                    issue.getReporter().getUsername(),
+                    issue.getProject().getName(),
+                    issue.getStoryPoints(),
+                    issue.getDueDate().toString(),
+                    issue.getCreatedAt().toString()
+                ), Collectors.toList())
+            ));
+
+
+
+        
+
+    }
+
+    
 
     
 

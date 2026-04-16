@@ -47,6 +47,8 @@ public class Project {
     private Set<ProjectMember> projectMembers;
     @OneToMany(mappedBy = "project")
     private Set<Label> labels;
+    @OneToMany(mappedBy = "project")
+    private Set<Issue> issues;
 
 
 

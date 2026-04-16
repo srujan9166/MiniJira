@@ -63,5 +63,9 @@ public class IssueController {
         return ResponseEntity.status(HttpStatus.OK).body(issueService.updateIssueAssignee(id, assigneeId));
     }
 
+    @GetMapping("grouped-by-projects")
+    public ResponseEntity<?> getIssuesGroupedByProjects(){
+        return ResponseEntity.status(HttpStatus.OK).body(issueService.getIssuesByProject());
+    }
 
 }
