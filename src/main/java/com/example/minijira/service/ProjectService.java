@@ -6,7 +6,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.aspectj.weaver.ast.Not;
+
 import org.jspecify.annotations.Nullable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -195,6 +200,13 @@ public class ProjectService {
      
 
        
+    }
+
+    public Page<ProjectResponseDTO> getProjectsByPage(int page,int size , String sortBy){
+                Pageable pageable = PageRequest.of(page, size,Sort.by(sortBy));
+                 Page<Project> projects = projectRepository.findAll(pageable);
+                 return projects.map(this::convertProjectsToDTO);   
+                            
     }
 
     public ProjectMemberDTO convertMemberDTO(ProjectMember projectMember){

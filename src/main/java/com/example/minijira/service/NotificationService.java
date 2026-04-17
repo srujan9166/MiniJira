@@ -3,7 +3,7 @@ package com.example.minijira.service;
 import java.time.LocalDateTime;
 import java.util.List;
 
-
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.example.minijira.dto.notificationDTO.NotificationResponseDTO;
@@ -23,6 +23,7 @@ public class NotificationService {
         this.userRepository = userRepository;
         this.authServiceImpl = authServiceImpl;
     }
+    @Async
     public  String sendNotification(Long userId, NotificationSendDTO notificationSendDTO) {
         User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found"));
         Notification notification = new Notification();
