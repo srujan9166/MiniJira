@@ -14,7 +14,7 @@ import com.example.minijira.model.ProjectMember;
 public interface ProjectMemberRepository extends JpaRepository<ProjectMember, Long> {
 
     boolean existsByProjectIdAndUserId(Long id, Long userId);
-    Optional<Set<ProjectMember>> findByProjectId(Long id);
+    Set<ProjectMember> findByProjectId(Long id);
 
     @Modifying
 @Query("DELETE FROM ProjectMember pm WHERE pm.project.id = :projectId AND pm.user.id = :userId")

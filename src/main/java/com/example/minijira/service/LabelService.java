@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.minijira.dto.labelDTO.LabelCreateDTO;
 import com.example.minijira.dto.labelDTO.LabelResponseDTO;
+import com.example.minijira.exception.globalException.ResourceNotFoundException;
 import com.example.minijira.model.Label;
 import com.example.minijira.model.Project;
 import com.example.minijira.repository.LabelRepository;
@@ -36,7 +37,7 @@ public class LabelService {
     public LabelResponseDTO getLabelById(Long id) {
         return labelRepository.findById(id)
                 .map(this::mapToLabelResponseDTO)
-                .orElseThrow(() -> new RuntimeException("Label not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Label not found"));
     }
 
     public LabelResponseDTO mapToLabelResponseDTO(Label label) {
@@ -49,7 +50,7 @@ public class LabelService {
     }
     public void deleteLabelById(Long id) {
         if (!labelRepository.existsById(id)) {
-            throw new RuntimeException("Label not found");
+            throw new ResourceNotFoundException("Label not found");
         }
         labelRepository.deleteById(id);
     }

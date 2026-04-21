@@ -5,6 +5,8 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -66,7 +68,9 @@ public class ProjectController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getProjectDetails(@PathVariable Long id){
-        return ResponseEntity.status(HttpStatus.OK).body(projectService.getProjectDetails(id));
+         Authentication authentication = SecurityContextHolder.getContext().getAuthentication(); // get user from JWT
+         String username = authentication.getName();
+        return ResponseEntity.status(HttpStatus.OK).body(projectService.getProjectDetails(id, username));
     }
 
     @PutMapping("/{id}")

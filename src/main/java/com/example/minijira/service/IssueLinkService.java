@@ -3,6 +3,7 @@ package com.example.minijira.service;
 import org.springframework.stereotype.Service;
 
 import com.example.minijira.dto.issueLinkDTO.IssueLinkCreate;
+import com.example.minijira.exception.globalException.ResourceNotFoundException;
 import com.example.minijira.model.Issue;
 import com.example.minijira.model.IssueLink;
 import com.example.minijira.repository.IssueLinkRepository;
@@ -18,9 +19,9 @@ public class IssueLinkService {
     }
     public  String linkIssues(IssueLinkCreate issueLinkCreate) {
         Issue sourceIssue = issueRepository.findById(issueLinkCreate.getSourceIssueId())
-                .orElseThrow(() -> new RuntimeException("Source issue not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Source issue not found"));
         Issue targetIssue = issueRepository.findById(issueLinkCreate.getTargetIssueId())
-                .orElseThrow(() -> new RuntimeException("Target issue not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Target issue not found"));
 
         IssueLink issueLink = new IssueLink();
         issueLink.setSourceIssue(sourceIssue);

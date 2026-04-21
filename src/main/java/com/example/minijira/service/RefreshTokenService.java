@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.minijira.exception.globalException.ResourceNotFoundException;
 import com.example.minijira.model.RefreshToken;
 import com.example.minijira.model.User;
 import com.example.minijira.repository.RefreshTokenRepository;
@@ -25,7 +26,7 @@ public class RefreshTokenService {
     public RefreshToken createRefreshToken(String username) {
 
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         // Optional: delete old tokens (recommended)
         // repository.deleteByUser(user);
@@ -41,7 +42,7 @@ public class RefreshTokenService {
     public RefreshToken verifyExpiration(RefreshToken token) {
         if (token.getExpiryDate().isBefore(Instant.now())) {
             repository.delete(token);
-            throw new RuntimeException("Refresh token expired");
+            throw new ResourceNotFoundException("Refresh token expired");
         }
         return token;
     }

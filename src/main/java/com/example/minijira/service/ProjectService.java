@@ -6,8 +6,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.aspectj.weaver.ast.Not;
-
+import org.hibernate.annotations.Cache;
 import org.jspecify.annotations.Nullable;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -17,6 +20,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.minijira.dto.notificationDTO.NotificationSendDTO;
 import com.example.minijira.dto.projectDTO.AddMemberDTO;
@@ -26,6 +30,8 @@ import com.example.minijira.dto.projectDTO.ProjectRequestDTO;
 import com.example.minijira.dto.projectDTO.ProjectResponseDTO;
 import com.example.minijira.dto.projectDTO.UpdateMemberDTO;
 import com.example.minijira.enums.ProjectRole;
+import com.example.minijira.exception.globalException.ResourceNotFoundException;
+import com.example.minijira.exception.globalException.UnauthorizedException;
 import com.example.minijira.model.Project;
 import com.example.minijira.model.ProjectMember;
 import com.example.minijira.model.User;
@@ -52,7 +58,8 @@ public class ProjectService {
         this.notificationService = notificationService;
         this.emailService = emailService;
     }
-
+    @Transactional
+   // @Cacheable(value = "projects", key = "#projectRequestDTO.projectKey")
     public ProjectResponseDTO createProject(ProjectRequestDTO projectRequestDTO){
 
       
@@ -60,7 +67,7 @@ public class ProjectService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
 
-        User user = userRepository.findByUsername(username).orElseThrow(()-> new UsernameNotFoundException("Username Not Found !"));
+        User user = userRepository.findByUsername(username).orElseThrow(()-> new ResourceNotFoundException("Username Not Found !"));
         if(projectRepository.existsByProjectKey(projectRequestDTO.getProjectKey())){
             throw new RuntimeException("Try new key!");
         }
@@ -86,17 +93,17 @@ public class ProjectService {
         projectResponseDTO.setName(project.getName());
         projectResponseDTO.setOnwerName(user.getUsername());
         projectResponseDTO.setCreatedAt(project.getCreatedAt());
-        System.out.println("errorrrrr");
+      //  System.out.println("errorrrrr");
 
         notificationService.sendNotification(user.getId(), new NotificationSendDTO("Project "+ project.getName() + " created successfully!"));
         emailService.sendEmail(user.getEmail(), "Project Created", "Your project " + project.getName() + " has been created successfully!");
-        System.out.println("Bugggggg");
+      //  System.out.println("Bugggggg");
         return projectResponseDTO;
     }
-
-    public  ProjectDetailsDTO getProjectDetails(Long id) {
-         Authentication authentication = SecurityContextHolder.getContext().getAuthentication(); // get user from JWT
-         String username = authentication.getName();
+  //@Cacheable(value = "projectDetails",key = "#id + '-' + #username")
+    public  ProjectDetailsDTO getProjectDetails(Long id , String username) {
+        System.out.println("Fetching project details from database for project id: " + id); // Debug log
+        
          User user = userRepository.findByUsername(username)
             .orElseThrow(()-> new RuntimeException("User Not Found"));
 
@@ -104,10 +111,10 @@ public class ProjectService {
             .existsByProjectIdAndUserId(id, user.getId());
 
     if(!isMember){
-        throw new RuntimeException("Access denied");
+        throw new UnauthorizedException("Access denied");
     }
 
-      Project project =  projectRepository.findById(id).orElseThrow(() -> new RuntimeException("Project Not Found!"));
+      Project project =  projectRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Project Not Found!"));
 
       return new ProjectDetailsDTO(
         project.getId(),
@@ -124,9 +131,10 @@ public class ProjectService {
         
     }
 
+  //  @CachePut(value = "projectDetails", key = "#id")
     public  String  updateProject(ProjectRequestDTO projectRequestDTO , Long id) {
         Project project = projectRepository.findById(id)
-                            .orElseThrow(() -> new RuntimeException("No Project is Found!"));
+                            .orElseThrow(() -> new ResourceNotFoundException("No Project is Found!"));
         
         project.setName(projectRequestDTO.getName());
         project.setDescription(projectRequestDTO.getDescription());
@@ -138,7 +146,7 @@ public class ProjectService {
 
     public ProjectDetailsDTO  archiveProject(Long id) {
 
-        Project project = projectRepository.findById(id).orElseThrow(()-> new RuntimeException("No Project Found."));
+        Project project = projectRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("No Project Found."));
         project.setArchived(true);
         projectRepository.save(project);
 
@@ -159,9 +167,9 @@ public class ProjectService {
     public  String addMemberToProject(Long id, AddMemberDTO addMemberDTO) {
 
         Project project = projectRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Project Not Found."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Project Not Found."));
         User user = userRepository.findById(addMemberDTO.getUserId())
-                    .orElseThrow(() -> new UsernameNotFoundException("user not found"));
+                    .orElseThrow(() -> new ResourceNotFoundException("user not found"));
                      boolean exists = projectMemberRepository
             .existsByProjectIdAndUserId(id, addMemberDTO.getUserId());
 
@@ -191,8 +199,12 @@ public class ProjectService {
     }
 
     public  Set<ProjectMemberDTO> getProjectMembers(Long id) {
-    Set< ProjectMember> projectMembers = projectMemberRepository.findByProjectId(id)
-     .orElseThrow(() -> new RuntimeException("Project Not Found"));
+    Set< ProjectMember> projectMembers = projectMemberRepository.findByProjectId(id);
+
+    if(projectMembers.isEmpty()){
+        throw new ResourceNotFoundException("No members found for this project");
+    }
+     
 
      return projectMembers.stream()
                             .map(this::convertMemberDTO)
@@ -219,6 +231,7 @@ public class ProjectService {
         );
     }
 
+  //  @CacheEvict(value = "projectDetails", key = "#id")
     public void removeProjectMember(Long id, Long userId) {
         
     ProjectMember projectMember = projectMemberRepository

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.minijira.dto.commentDTO.CommentRequestDTO;
 import com.example.minijira.dto.commentDTO.CommentResponseDTO;
+import com.example.minijira.exception.globalException.ResourceNotFoundException;
 import com.example.minijira.model.Comment;
 import com.example.minijira.model.Issue;
 import com.example.minijira.model.User;
@@ -27,7 +28,7 @@ public class CommentService {
 
     public  CommentResponseDTO addCommentToIssue(Long id, CommentRequestDTO commentRequestDTO) {
         Issue issue = issueRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Issue Not Found!"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Issue Not Found!"));
             User user = authServiceImpl.getCurrentUser();
 
         Comment comment = Comment.builder()
@@ -53,9 +54,9 @@ public class CommentService {
 
     public  List<CommentResponseDTO> getCommentsByIssueId(Long id) {
         Issue issue = issueRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Issue Not Found!"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Issue Not Found!"));
         List<Comment> comments = commentRepository.findByIssue(issue)
-                    .orElseThrow(() -> new RuntimeException("Comments Not Found!"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Comments Not Found!"));
         return comments.stream()
                 .map(this::convertCommentToDTO)
                 .toList();
@@ -65,7 +66,7 @@ public class CommentService {
 
     public String updateComment(Long id, CommentRequestDTO commentRequestDTO) {
         Comment comment = commentRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Comment Not Found!"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Comment Not Found!"));
         // User user = authServiceImpl.getCurrentUser();
         // if(!comment.getAuthor().getId().equals(user.getId())){
         //     throw new RuntimeException("Unauthorized to update this comment!");
@@ -78,7 +79,7 @@ public class CommentService {
 
     public void deleteComment(Long id) {
         Comment comment = commentRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Comment Not Found!"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Comment Not Found!"));
         // User user = authServiceImpl.getCurrentUser();
         // if(!comment.getAuthor().getId().equals(user.getId())){
         //     throw new RuntimeException("Unauthorized to delete this comment!");

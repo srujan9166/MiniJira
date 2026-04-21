@@ -20,6 +20,7 @@ import com.example.minijira.dto.issueDTO.IssueResponseDTO;
 import com.example.minijira.dto.issueDTO.UpdateStatusDTO;
 import com.example.minijira.dto.notificationDTO.NotificationSendDTO;
 import com.example.minijira.enums.IssueStatus;
+import com.example.minijira.exception.globalException.ResourceNotFoundException;
 import com.example.minijira.model.Issue;
 import com.example.minijira.model.Project;
 import com.example.minijira.model.User;
@@ -108,7 +109,7 @@ public class IssueService {
 
     public  IssueResponseDTO getIssueDetails(Long id) {
         Issue issue= issueRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Issue Not Found!"));
+                .orElseThrow(() -> new ResourceNotFoundException("Issue Not Found!"));
 
                 return new IssueResponseDTO(issue.getId(),
                 issue.getTitle(),
@@ -132,7 +133,7 @@ public class IssueService {
     public List<IssueResponseDTO> getIssuesByProjectId(Long projectId) {
 
     List<Issue> issues = issueRepository.findAllByProjectId(projectId)
-            .orElseThrow(() -> new RuntimeException("Project Not Found!"));
+            .orElseThrow(() -> new ResourceNotFoundException("Project Not Found!"));
 
     return issues.stream()
             .map(issue -> new IssueResponseDTO(
@@ -156,10 +157,10 @@ public class IssueService {
     public String updateIssue(Long id, IssueRequestDTO request) {
 
         Issue issue = issueRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Issue Not Found!"));
+                .orElseThrow(() -> new ResourceNotFoundException("Issue Not Found!"));
 
         User assignee = userRepository.findByUsername(request.getAssigneeUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         issue.setTitle(request.getTitle());
         issue.setDescription(request.getDescription());
@@ -180,7 +181,7 @@ public class IssueService {
     public String deleteIssue(Long id) {
         
         Issue issue = issueRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Issue Not Found!"));
+                .orElseThrow(() -> new ResourceNotFoundException("Issue Not Found!"));
         issueRepository.deleteById(id);
         emailService.sendEmail(issue.getAssignee().getEmail(), "Issue Deleted", "The issue \"" + issue.getTitle() + "\" in project \"" + issue.getProject().getName() + "\" has been deleted.");
         return "Issue deleted successfully!" ;
@@ -188,7 +189,7 @@ public class IssueService {
 
     public  String updateIssueStatus(Long id, UpdateStatusDTO updateStatusDTO) {
         Issue issue = issueRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Issue Not Found!"));
+                .orElseThrow(() -> new ResourceNotFoundException("Issue Not Found!"));
 
         issue.setIssueStatus(updateStatusDTO.getIssueStatus());
         issue.setUpdatedAt(LocalDateTime.now());

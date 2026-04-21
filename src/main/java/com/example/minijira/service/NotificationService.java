@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.minijira.dto.notificationDTO.NotificationResponseDTO;
 import com.example.minijira.dto.notificationDTO.NotificationSendDTO;
+import com.example.minijira.exception.globalException.ResourceNotFoundException;
 import com.example.minijira.model.Notification;
 import com.example.minijira.model.User;
 import com.example.minijira.repository.NotificationRepository;
@@ -38,7 +39,7 @@ public class NotificationService {
     }
     public  String markAsRead(Long notificationId) {
         Notification notification = notificationRepository.findById(notificationId)
-                .orElseThrow(() -> new IllegalArgumentException("Notification not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Notification not found"));
         notification.setRead(true);
         notificationRepository.save(notification);
         return "Notification marked as read";
@@ -47,10 +48,10 @@ public class NotificationService {
     public  String markAllAsRead(Long notificationId) {
         User currentUser = authServiceImpl.getCurrentUser();
         if (currentUser == null) {
-            throw new IllegalStateException("No authenticated user found");
+            throw new ResourceNotFoundException("No authenticated user found");
         }
        List<Notification> notifications = notificationRepository.findAllByUserId(currentUser.getId())
-                .orElseThrow(() -> new IllegalArgumentException("No notifications found for user"));
+                .orElseThrow(() -> new ResourceNotFoundException("No notifications found for user"));
        
                  notifications.forEach(notification -> notification.setRead(true));
         notificationRepository.saveAll(notifications);
@@ -64,10 +65,10 @@ public class NotificationService {
     public  List<NotificationResponseDTO> getAllNotifications() {
         User currentUser = authServiceImpl.getCurrentUser();
         if (currentUser == null) {
-            throw new IllegalStateException("No authenticated user found");
+            throw new ResourceNotFoundException("No authenticated user found");
         }
         List<Notification> notifications = notificationRepository.findAllByUserId(currentUser.getId())
-                .orElseThrow(() -> new IllegalArgumentException("No notifications found for user"));
+                .orElseThrow(() -> new ResourceNotFoundException("No notifications found for user"));
         return notifications.stream()
                 .map(notification -> new NotificationResponseDTO(
                         notification.getId(),
