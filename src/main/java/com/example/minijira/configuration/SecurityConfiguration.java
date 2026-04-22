@@ -46,6 +46,7 @@ public class SecurityConfiguration {
     )
             .authorizeHttpRequests(auth -> auth
                                             .requestMatchers("/api/auth/**").permitAll()
+                                            .requestMatchers("/ai/**").permitAll()
                                              
                                             
                                             .requestMatchers(
