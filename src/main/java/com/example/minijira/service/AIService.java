@@ -7,9 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import com.example.minijira.dto.aiDTO.ChatRequestDTO;
-import com.example.minijira.dto.aiDTO.ChatResponseDTO;
-import com.example.minijira.dto.aiDTO.Message;
+
 @Service
 public class AIService {
 
@@ -38,6 +36,7 @@ public class AIService {
                 .retrieve()
                 .bodyToMono(String.class)
                 .block();
+                //Send only the text part of the response back to the client
 
         return response;
     }

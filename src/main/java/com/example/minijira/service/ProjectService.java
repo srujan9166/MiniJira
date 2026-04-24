@@ -59,7 +59,7 @@ public class ProjectService {
         this.emailService = emailService;
     }
     @Transactional
-   // @Cacheable(value = "projects", key = "#projectRequestDTO.projectKey")
+   
     public ProjectResponseDTO createProject(ProjectRequestDTO projectRequestDTO){
 
       
@@ -100,7 +100,7 @@ public class ProjectService {
       //  System.out.println("Bugggggg");
         return projectResponseDTO;
     }
-  //@Cacheable(value = "projectDetails",key = "#id + '-' + #username")
+        @Cacheable(value = "projectDetails", key = "#id + '_' + #username")
     public  ProjectDetailsDTO getProjectDetails(Long id , String username) {
         System.out.println("Fetching project details from database for project id: " + id); // Debug log
         
@@ -131,7 +131,7 @@ public class ProjectService {
         
     }
 
-  //  @CachePut(value = "projectDetails", key = "#id")
+   @CachePut(value = "projectDetails", key = "#id")
     public  String  updateProject(ProjectRequestDTO projectRequestDTO , Long id) {
         Project project = projectRepository.findById(id)
                             .orElseThrow(() -> new ResourceNotFoundException("No Project is Found!"));
@@ -231,7 +231,7 @@ public class ProjectService {
         );
     }
 
-  //  @CacheEvict(value = "projectDetails", key = "#id")
+    @CacheEvict(value = "projectDetails", key = "#id")
     public void removeProjectMember(Long id, Long userId) {
         
     ProjectMember projectMember = projectMemberRepository

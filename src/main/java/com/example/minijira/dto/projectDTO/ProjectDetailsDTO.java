@@ -1,5 +1,6 @@
 package com.example.minijira.dto.projectDTO;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 import lombok.AllArgsConstructor;
@@ -11,7 +12,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProjectDetailsDTO {
+public class ProjectDetailsDTO implements Serializable{
 
     private Long id;
     private String name;
